@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BotsRHere — Auth</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --fg: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --primary: #6366f1;
+      --accent: #10b981;
+      --glass: rgba(255, 255, 255, 0.05);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    body {
+      display: grid;
+      place-items: center;
+      background-image: 
+        radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.15) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.15) 0px, transparent 50%);
+    }
+    .logo {
+      width: 180px;
+      margin: 0 auto 24px;
+      display: block;
+      filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.3));
+    }
+    .wrap {
+      width: 100%;
+      max-width: 400px;
+      padding: 24px;
+      animation: fadeIn 0.4s ease-out;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+      background-color: var(--glass);
+    }
+    .tabs {
+      display: flex;
+      background: rgba(15, 23, 42, 0.7);
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      appearance: none;
+      border: 0;
+      margin: 0;
+      cursor: pointer;
+      padding: 16px;
+      flex: 1;
+      text-align: center;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 600;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .tab-btn.active {
+      color: #fff;
+      background: transparent;
+    }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 20%;
+      right: 20%;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 3px 3px 0 0;
+    }
+    .pane {
+      display: none;
+      padding: 28px;
+    }
+    .pane.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.7);
+      color: #fff;
+      outline: none;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 600;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      padding: 14px;
+      width: 100%;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #4f46e5;
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    .row {
+      margin-bottom: 8px;
+    }
+    .links {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .terms {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      margin: 10px 0;
+    }
+    .terms a {
+      color: #818cf8;
+      text-decoration: none;
+    }
+    .terms a:hover {
+      text-decoration: underline;
+    }
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      background: #111827;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      font-size: 13px;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <img src="https://i0.wp.com/bots-r-here.com/wp-content/uploads/2024/12/Ontwerp-zonder-titel.png" alt="BotsRHere Logo" class="logo">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="signup">Sign Up</button>
+        <button class="tab-btn" data-tab="signin">Sign In</button>
+        <button class="tab-btn" data-tab="reset">Reset</button>
+      </div>
+
+      <!-- SIGN UP -->
+      <form id="pane-signup" class="pane active" autocomplete="on">
+        <div class="grid">
+          <div class="row">
+            <label for="su-email">Email</label>
+            <input id="su-email" type="email" placeholder="you@example.com" required/>
+          </div>
+          <div class="row">
+            <label for="su-pass">Password (min 6)</label>
+            <input id="su-pass" type="password" minlength="6" placeholder="••••••••" required/>
+          </div>
+          <label class="terms">
+            <input id="su-terms" type="checkbox"/>
+<span>
+  I agree to the <a href="terms.html" target="_blank" rel="noopener">Terms</a>
+  and <a href="terms.html" target="_blank" rel="noopener">Privacy Policy</a>
+</span>
+
+          </label>
+          <button id="btn-signup" class="btn btn-primary" type="submit">Create account</button>
+          <div class="links">
+            <button class="btn btn-ghost" type="button" data-switch="signin">Already have an account?</button>
+          </div>
+          <p class="muted">New users receive <b>1000 free tokens</b> to start.</p>
+        </div>
+      </form>
+
+      <!-- SIGN IN -->
+      <form id="pane-signin" class="pane" autocomplete="on">
+        <div class="grid">
+          <div class="row">
+            <label for="si-email">Email</label>
+            <input id="si-email" type="email" placeholder="you@example.com" required/>
+          </div>
+          <div class="row">
+            <label for="si-pass">Password</label>
+            <input id="si-pass" type="password" placeholder="••••••••" required/>
+          </div>
+          <button id="btn-signin" class="btn btn-primary" type="submit">Sign In</button>
+          <div class="links">
+            <button class="btn btn-ghost" type="button" data-switch="signup">Create account</button>
+            <button class="btn btn-ghost" type="button" data-switch="reset">Forgot password?</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- RESET -->
+      <form id="pane-reset" class="pane" autocomplete="on">
+        <div class="grid">
+          <div class="row">
+            <label for="rp-email">Email</label>
+            <input id="rp-email" type="email" placeholder="you@example.com" required/>
+          </div>
+          <button id="btn-reset" class="btn btn-primary" type="submit">Send reset link</button>
+          <div class="links">
+            <button class="btn btn-ghost" type="button" data-switch="signin">Back to Sign In</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script type="module">
+    // Firebase v12.1.0
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_Lpw7jX9I084OND8dA-4RNaqfCcu68vU",
+      authDomain: "aiteken11.firebaseapp.com",
+      databaseURL: "https://aiteken11-default-rtdb.firebaseio.com",
+      projectId: "aiteken11",
+      storageBucket: "aiteken11.appspot.com",
+      messagingSenderId: "624322865830",
+      appId: "1:624322865830:web:96991767b5b38558846267",
+      measurementId: "G-LRBSV200FM"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Tabs
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panes = {
+      signup: document.getElementById('pane-signup'),
+      signin: document.getElementById('pane-signin'),
+      reset: document.getElementById('pane-reset'),
+    };
+    function activate(tab) {
+      tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      Object.entries(panes).forEach(([k, el]) => el.classList.toggle('active', k === tab));
+      if (tab === 'signup') document.getElementById('su-email').focus();
+      if (tab === 'signin') document.getElementById('si-email').focus();
+      if (tab === 'reset') document.getElementById('rp-email').focus();
+    }
+    tabs.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab)));
+    document.querySelectorAll('[data-switch]').forEach(b => b.addEventListener('click', () => activate(b.dataset.switch)));
+
+    // Toast
+    const toast = document.getElementById('toast');
+    function showToast(msg) { 
+      toast.textContent = msg; 
+      toast.classList.add('show'); 
+      setTimeout(() => toast.classList.remove('show'), 3000); 
+    }
+
+    const REDIRECT = 'public/index.html';
+
+    // Helper: surface auth errors
+    function bubbleAuthError(e, fallback) {
+      console.warn('[AUTH]', e?.code, e?.message);
+      const friendlyError = e?.code?.replace('auth/', '') || 'Error';
+      showToast(`${friendlyError}: ${e?.message || fallback}`);
+    }
+
+    // Sign Up
+    document.getElementById('pane-signup').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('su-email').value.trim();
+      const pass = document.getElementById('su-pass').value;
+      const agree = document.getElementById('su-terms').checked;
+      if (!agree) { showToast('Please accept the terms'); return; }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, 'users', cred.user.uid), {
+          email,
+          tokens: 1000,
+          created_at: serverTimestamp(),
+          terms_accepted: true,
+          terms_accepted_at: serverTimestamp()
+        });
+        showToast('Account created! Redirecting...');
+        setTimeout(() => window.location.href = REDIRECT, 1500);
+      } catch (err) {
+        bubbleAuthError(err, 'Signup failed');
+      }
+    });
+
+    // Sign In
+    document.getElementById('pane-signin').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('si-email').value.trim();
+      const pass = document.getElementById('si-pass').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        showToast('Welcome back! Redirecting...');
+        setTimeout(() => window.location.href = REDIRECT, 1500);
+      } catch (err) {
+        bubbleAuthError(err, 'Signin failed');
+      }
+    });
+
+    // Reset
+    document.getElementById('pane-reset').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('rp-email').value.trim();
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showToast('Reset link sent to your email');
+        setTimeout(() => activate('signin'), 2000);
+      } catch (err) {
+        bubbleAuthError(err, 'Reset failed');
+      }
+    });
+
+    // Initialize
+    activate('signup');
+  </script>
+</body>
+</html>
